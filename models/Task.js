@@ -1,0 +1,22 @@
+const { DataTypes } = require("sequelize");
+const db = require("../db");
+
+const Task = db.define("Task", {
+    title: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: { notEmpty: true},
+    },
+
+    priority: {
+        type: DataTypes.INTEGER,
+        defaultValue: 1,
+    },
+
+    status: {
+        type: DataTypes.STRING,
+        defaultValue: "todo",
+    },
+});
+
+module.exports = Task;
