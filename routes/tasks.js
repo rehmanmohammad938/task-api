@@ -3,6 +3,13 @@ const router = express.Router();
 const { Op } = require("sequelize");
 const { Task } = require("../models");
 
+function requireTitle(req, res, next) {
+    if (!req.body.title) {
+        return res.status(400).json({ error: "title is required "});
+    }
+    next();
+}
+
 router.get("/", async (req, res) => {
     const { search, status, minPriority } = req.query;
     const where = {};
@@ -31,9 +38,16 @@ router.get("/:id", async (req, res) => {
     res.json(task);
 });
 
-router.post("/", async (req, res) => {
-    const task = await Task.create(req.body);
-    res.status(201).json(task);
+router.post("/", requireTitle, async (req, res, next) => {
+    try {
+        const task = await Task.create(req.body);
+        res.status(201).json(task);
+    } catch (err) {
+        if (err.name ==="SequelizeValidationError") {
+            return res.status(400).json({ error: err.error[0].message });
+        }
+        next[err];
+    }
 });
 
 router.patch("/:id", async (req, res) => {
