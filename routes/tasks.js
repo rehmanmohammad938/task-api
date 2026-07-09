@@ -1,8 +1,24 @@
 const express = require("express");
 const router = express.Router();
+const { Op } = require("sequelize");
 const { Task } = require("../models");
 
 router.get("/", async (req, res) => {
+    const { search, status, minPriority } = req.query;
+    const where = {};
+
+    if (status) {
+        where.status = status;
+    }
+
+    if (search) {
+        where.title = { [Op.iLike]: `%${search}%` };
+    }
+
+    if (minPriority) {
+        where.priority = { [Op.gte]: Number(minPriority) };
+    }
+
     const tasks = await Task.findAll();
     res.json(tasks);
 });
